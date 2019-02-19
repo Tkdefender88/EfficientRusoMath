@@ -24,7 +24,7 @@ OBJS =	$(SRCS:.cpp=.o)
 # Dependency files will be inferred from source files; adjust as needed
 DEPS =	$(SRCS:.cpp=.dep)
 # List all targets this Makefile is to create from source files
-TARGET = main
+TARGET = mul 
 
 ###################################################
 # Should Not need to modify lines of Makefile below
