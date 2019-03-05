@@ -1,0 +1,64 @@
+%%
+% F19 CSCI 332 Data Structures and Algorithms
+%
+% Project-1 Efficient Russian Multiplication
+%
+% Phillip J. Curtiss, PhD, Assistant Professor
+% Department of Computer Science
+% Montana Tech of the Univ of Montana
+%%
+\documentclass[10pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in,headheight=20pt]{geometry}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage[sc]{titlesec}
+\usepackage{lastpage}
+\usepackage{fancyvrb}
+
+%%
+% Command for using verbatim material
+% in description list
+\newcommand{\Vitem}{%
+   \SaveVerb[aftersave={%
+      \item[\UseVerb{Vitem}]}]{Vitem}}
+
+%% 
+% First Page Style
+\fancypagestyle{project}{%
+   \fancyhf{}% Clear all settings
+   \lhead{%
+      {\bfseries{} Efficient Russian Multiplication} \\
+      {S19 CSCI332 Design and Analysis of Algorithms} \\[1em]
+      {Reference: \S 4.4; 5.0}}
+   \rhead{Assigned: 2019-02-15 \\
+          Due Date: 2019-03-09 (midnight)}
+   \lfoot{Justin Bak, Student \textbullet\ 
+          Department of Software Engineering \textbullet\ Montana Tech}
+   \rfoot{Page~\thepage~of~\pageref{LastPage}}
+   \renewcommand{\headrulewidth}{0.4pt}
+   \renewcommand{\footrulewidth}{0.4pt}
+}
+
+\begin{document}
+\pagestyle{project}
+
+\section*{Project Question Answers:}
+\begin{enumerate}
+	\item $Shifts(n) = 2*\log_2{n}$
+	\item $Accesses(n) = 2*height + n$
+	\item One possible structure that could provide more a more Efficient result
+	could be a heap. This is because as long as the Russian Peasant
+	multiplication keeps n smaller than m and begins with the largest value in
+	the tree, then the number of multiplications will be minimized. This fact 
+	allows us to use a binary heap which always keeps the largest value at the
+	root the accesses for each node will be 1.
+	\item You would have to represent the numbers with two locations in memory
+	sized at $(2^{64}-1)$. When you multiply the numbers you would perform a bit
+	shift on the smaller part of the number and keep track of any over flow and
+	then add it to the larger half of the number, then bitshift the larger.
+	For division it would be the same process but in reverse, bitshift the
+	larger, add overflow to the smaller and then bitshift again.
+\end{enumerate}
+
+\end{document}
