@@ -28,9 +28,10 @@ using std::string;
 // but not both - you may check the value - if the TVal.iVal < 0 then
 // access the value in TVal.ullVal for the correct value
 using TVal = union val {
-    int iVal = -1;  // 16 bits; max_int 2147483647 2^31 - 1
-    unsigned long long
-        ullVal;  // 64 bits; max_ullint 18446744073709551615 2^64-1
+    // 16 bits; max_int 2147483647 2^31 - 1
+    int iVal = -1;
+    // 64 bits; max_ullint 18446744073709551615 2^64-1
+    unsigned long long ullVal;
     bool operator<(const val& t) const {
         // Check to see if the iVal has overflowed
         if (this->iVal & 0x8000 || t.iVal & 0x8000) {
@@ -46,6 +47,12 @@ using TVal = union val {
         }
         return this->iVal > t.iVal;
     }
+
+    val operator=(const val& t) {
+        this->ullVal = t.ullVal;
+        this->iVal = t.iVal;
+        return *this;
+    }
 };
 
 /**
@@ -59,11 +66,33 @@ using TVal = union val {
  * @param argv - an array of character pointers representing
  *               each command line argument
  */
+
+int shitftCounts = 0;
+
+TVal russoMult(const TVal nVal, const TVal mVal) {
+    // check if the value has overflowed an int
+    TVal sum;
+    sum.iVal = 0;
+    cout << "Calculating" << endl;
+
+    for (unsigned long long n = nVal.ullVal, m = mVal.ullVal; n >= 1;
+         n >>= 1, m <<= 1) {
+        // check if n is odd
+        cout << "n : " << n << " m: " << m << endl;
+        if (n % 2) {
+            sum.ullVal += m;
+            if (n == 1) {
+                return sum;
+            }
+        }
+        shitftCounts += 2;
+    }
+    return sum;
+}
+
 int main(int argc, char* argv[]) {
     // initialize a binary search tree
     BST<TVal> multSearchTree;
-
-    // initialize your alarusse object
 
     // insert each of the command line arguments into
     // the binary search tree by converting each command
@@ -71,21 +100,63 @@ int main(int argc, char* argv[]) {
     for (int ndx = 1; ndx < argc; ndx++) {
         // convert the command line argument to an int
         TVal nodeItem;
-
         nodeItem.iVal = atoi(argv[ndx]);
-
         // output the numbers processed
-        cout << "Inserting " << nodeItem.iVal << " into BST." << endl;
-        multSearchTree.insert(multSearchTree.getRoot(), nodeItem);
-
+        // cout << "Inserting " << nodeItem.iVal << " into BST." << endl;
+        multSearchTree.insert(nodeItem);
         // insert argInt into binary search tree
     }  // end for
 
     // if BST is empty, return EXIT_FAILURE
+    if (multSearchTree.isEmpty()) {
+        return EXIT_FAILURE;
+    }
 
     // perform alarusse with the tree in the most efficient way possible
+    TVal result;
+    result.iVal = 16;
+
+    int accesses = 0;
+
+    auto countAccesses = [&accesses](TVal nodeItem) { accesses++; };
+
+    BSTnode_ptr<TVal> min = multSearchTree.getMin(countAccesses);
+    BSTnode_ptr<TVal> max = multSearchTree.getMax(countAccesses);
+
+    result = russoMult(min->getItem(), max->getItem());
+
+    multSearchTree.remove(min->getItem());
+    multSearchTree.remove(max->getItem());
+
+    auto mult = [&result, &accesses](TVal nodeItem) {
+        accesses++;
+        if (result.iVal < nodeItem.iVal) {
+            result = russoMult(result, nodeItem);
+            return;
+        }
+        result = russoMult(nodeItem, result);
+    };
+
+    multSearchTree.inorderTraversal(multSearchTree.getRoot(), mult);
 
     // output the result and the efficiency metric(s)
+
+    auto print = [](TVal i) {
+        if (i.iVal > 0) {
+            cout << i.iVal << " ";
+            return;
+        }
+        cout << i.ullVal << " ";
+        return;
+    };
+
+    cout << "Multiplication of the operands below is: " << result.ullVal
+         << endl;
+    multSearchTree.inorderTraversal(multSearchTree.getRoot(), print);
+    cout << endl;
+    cout << "Shifts performed is " << shitftCounts << " (via A La Russe)"
+         << endl;
+    cout << "Accesses for operands is " << accesses << " (via AVL BST)" << endl;
 
     // terminate the application
     return EXIT_SUCCESS;

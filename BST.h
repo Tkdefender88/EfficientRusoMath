@@ -21,7 +21,7 @@ using std::shared_ptr;
 
 // alias (typedef) for a templated void function pointer
 template <class ItemType>
-using func = void (*)(ItemType item);
+using func = std::function<void(ItemType)>;  // void (*)(ItemType item);
 
 // represents a binary search tree
 template <class ItemType>
@@ -33,6 +33,7 @@ class BST {
     // returns the height of the BST as an int
     int height(BSTnode_ptr<ItemType> node);
 
+    // Helper function that returns the maximum of two integers
     int max(int a, int b);
 
     // returns the largest height different of the BST as an int
@@ -67,6 +68,21 @@ class BST {
     // rotations to being the tree back into a height difference of 1
     BSTnode_ptr<ItemType> balance(BSTnode_ptr<ItemType> node, ItemType item);
 
+    // insert is a recursive function that will insert a new item into the BST
+    // and returns the new root of the
+    BSTnode_ptr<ItemType> insert(BSTnode_ptr<ItemType> root,
+                                 const ItemType item);
+
+    // remove is a recursive function that will remove a node that matches a
+    // given key and return the new tree root
+    BSTnode_ptr<ItemType> remove(BSTnode_ptr<ItemType> root,
+                                 const ItemType item);
+
+    BSTnode_ptr<ItemType> getMinVal(BSTnode_ptr<ItemType> root);
+
+    BSTnode_ptr<ItemType> find(BSTnode_ptr<ItemType> root,
+                               const ItemType item) const;
+
    public:
     // constructor
     BST();
@@ -74,12 +90,11 @@ class BST {
     // test whether the BST is empty or not
     bool isEmpty() const;
 
-    // insert is a recursive function that will insert a new item into the BST
-    // and returns the new root of the
-    BSTnode_ptr<ItemType> insert(BSTnode_ptr<ItemType> root,
-                                 const ItemType item);
+    // insert will insert an item into the node and keep the balance
+    void insert(const ItemType item);
 
-    // remove the item from the BST
+    // remove will remove the item from the BST with a matching item and keep
+    // the tree balanced
     void remove(const ItemType item);
 
     // find the item in the BST and return a pointer to the BSTnode
@@ -89,7 +104,17 @@ class BST {
     // perform an inorder traversal of the BST
     // calling f(item) at each visited node
     void inorderTraversal(BSTnode_ptr<ItemType> node,
-                          func<ItemType>(item)) const;
+                          func<ItemType> fptr) const;
+
+    // getMin performs a left traversal and returns a pointer to the smallest
+    // node in the tree Takes a function pointer for an action that will be
+    // performed on every node visited in the traversal, can be nullptr
+    BSTnode_ptr<ItemType> getMin(func<ItemType> fptr) const;
+
+    // getMax performs a right traversal and returns a pointer to the smallest
+    // node in the tree. Takes a function pointer for an action that will be
+    // performed on every node visited in the traversal, can be nullptr
+    BSTnode_ptr<ItemType> getMax(func<ItemType> fptr) const;
 
     BSTnode_ptr<ItemType> getRoot() const;
 };  // end BST class

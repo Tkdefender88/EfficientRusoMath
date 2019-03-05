@@ -13,12 +13,18 @@
 #ifndef BST_IMP
 #define BST_IMP
 
+#include <iostream>
 #include <memory>
 
 #include "BST.h"
 
 template <class ItemType>
 BST<ItemType>::BST() : root(nullptr) {}  // end of constructor
+
+template <class ItemType>
+void BST<ItemType>::insert(const ItemType item) {
+    this->root = insert(root, item);
+}
 
 template <class ItemType>
 BSTnode_ptr<ItemType> BST<ItemType>::insert(BSTnode_ptr<ItemType> root,
@@ -28,9 +34,9 @@ BSTnode_ptr<ItemType> BST<ItemType>::insert(BSTnode_ptr<ItemType> root,
     }
 
     if (item < root->getItem()) {
-        root = insert(root->getLeft(), item);
+        root->setLeft(insert(root->getLeft(), item));
     } else if (item > root->getItem()) {
-        root = insert(root->getRight(), item);
+        root->setRight(insert(root->getRight(), item));
     } else {
         // equal trees are not allowed in BST, simply return
         return root;
@@ -67,6 +73,7 @@ BSTnode_ptr<ItemType> BST<ItemType>::balance(BSTnode_ptr<ItemType> root,
         return rlRotation(root);
     }
 
+    // return the unchanged node
     return root;
 }
 
@@ -150,7 +157,79 @@ BSTnode_ptr<ItemType> BST<ItemType>::lrRotation(BSTnode_ptr<ItemType> node) {
 
 template <class ItemType>
 BSTnode_ptr<ItemType> BST<ItemType>::find(const ItemType item) const {
-    return;
+    return find(this->root, item);
+}
+
+template <class ItemType>
+BSTnode_ptr<ItemType> BST<ItemType>::find(BSTnode_ptr<ItemType> root,
+                                          const ItemType item) const {
+    if (root->getItem() == item) {
+        return root;
+    }
+    if (root == nullptr) {
+        return root;
+    }
+
+    BSTnode_ptr<ItemType> right = find(root->getRight(), item);
+    BSTnode_ptr<ItemType> left = find(root->getLeft(), item);
+
+    return (right != nullptr) ? right : left;
+}
+
+template <class ItemType>
+BSTnode_ptr<ItemType> BST<ItemType>::remove(BSTnode_ptr<ItemType> root,
+                                            const ItemType item) {
+    // begin with standard BST removal
+    if (root == nullptr) {
+        return root;
+    }
+
+    if (item < root->getItem()) {
+        root->setLeft(remove(root->getLeft(), item));
+    } else if (item > root->getItem()) {
+        root->setRight(remove(root->getRight(), item));
+    } else {  // if the item is the same, then this is the node to kill ;'(
+        if ((root->getLeft() == nullptr) || (root->getRight() == nullptr)) {
+            BSTnode_ptr<ItemType> temp = (root->getLeft() != nullptr)
+                                             ? root->getLeft()
+                                             : root->getRight();
+            // in the case of no children
+            if (temp == nullptr) {
+                temp = nullptr;
+                root = nullptr;
+            } else {
+                root = temp;
+            }
+        } else {
+            BSTnode_ptr<ItemType> temp = getMinVal(root->getRight());
+
+            root->setItem(temp->getItem());
+
+            root->setRight(remove(root->getRight(), temp->getItem()));
+        }
+    }
+
+    if (root == nullptr) {
+        return root;
+    }
+
+    root->setHeight(1 + max(height(root->getLeft()), height(root->getRight())));
+
+    return balance(root, item);
+}
+
+template <class ItemType>
+BSTnode_ptr<ItemType> BST<ItemType>::getMinVal(BSTnode_ptr<ItemType> root) {
+    // traverse the tree
+    BSTnode_ptr<ItemType> current = root;
+    for (; current->getLeft() != nullptr; current = current->getLeft()) {
+    }
+    return current;
+}
+
+template <class ItemType>
+void BST<ItemType>::remove(const ItemType item) {
+    this->root = BST<ItemType>::remove(this->root, item);
 }
 
 template <class ItemType>
@@ -159,7 +238,48 @@ BSTnode_ptr<ItemType> BST<ItemType>::getRoot() const {
 }
 
 template <class ItemType>
+bool BST<ItemType>::isEmpty() const {
+    return this->root == nullptr;
+}
+
+template <class ItemType>
+BSTnode_ptr<ItemType> BST<ItemType>::getMin(func<ItemType> fptr) const {
+    BSTnode_ptr<ItemType> n;
+    for (n = this->root; n->getLeft() != nullptr; n = n->getLeft()) {
+        if (fptr != nullptr) {
+            fptr(n->getItem());
+        }
+    }
+    return n;
+}
+
+template <class ItemType>
+BSTnode_ptr<ItemType> BST<ItemType>::getMax(func<ItemType> fptr) const {
+    BSTnode_ptr<ItemType> n;
+    // move n along the tree until it can't move further
+    for (n = this->root; n->getRight() != nullptr; n = n->getRight()) {
+        // execute the function on every node as long as it's not nullptr
+        if (fptr != nullptr) {
+            fptr(n->getItem());
+        }
+    }
+    // give back n
+    return n;
+}
+
+template <class ItemType>
 void BST<ItemType>::inorderTraversal(BSTnode_ptr<ItemType> node,
-                                     func<ItemType>(item)) const {}
+                                     func<ItemType> fptr) const {
+    if (node->getLeft() != nullptr) {
+        inorderTraversal(node->getLeft(), fptr);
+    }
+    // ensure the function passed is not null
+    if (fptr != nullptr) {
+        fptr(node->getItem());
+    }
+    if (node->getRight() != nullptr) {
+        inorderTraversal(node->getRight(), fptr);
+    }
+}
 
 #endif
