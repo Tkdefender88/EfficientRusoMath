@@ -24,37 +24,6 @@ using std::cout;
 using std::endl;
 using std::string;
 
-// used to hold values of type int or values of unsigned long long int
-// but not both - you may check the value - if the TVal.iVal < 0 then
-// access the value in TVal.ullVal for the correct value
-using TVal = union val {
-    // 16 bits; max_int 2147483647 2^31 - 1
-    int iVal = -1;
-    // 64 bits; max_ullint 18446744073709551615 2^64-1
-    unsigned long long ullVal;
-    bool operator<(const val& t) const {
-        // Check to see if the iVal has overflowed
-        if (this->iVal & 0x8000 || t.iVal & 0x8000) {
-            return this->ullVal < t.ullVal;
-        }
-        return this->iVal < t.iVal;
-    }
-
-    bool operator>(const val& t) const {
-        // Check to see if the iVal has overflowed
-        if ((this->iVal & 0x8000) || (t.iVal & 0x8000)) {
-            return this->ullVal > t.ullVal;
-        }
-        return this->iVal > t.iVal;
-    }
-
-    val operator=(const val& t) {
-        this->ullVal = t.ullVal;
-        this->iVal = t.iVal;
-        return *this;
-    }
-};
-
 /**
  * Using a binary search tree and your alarusse object
  * compute the result of multiplying the numbers given
@@ -66,29 +35,7 @@ using TVal = union val {
  * @param argv - an array of character pointers representing
  *               each command line argument
  */
-
-int shitftCounts = 0;
-
-TVal russoMult(const TVal nVal, const TVal mVal) {
-    // check if the value has overflowed an int
-    TVal sum;
-    sum.iVal = 0;
-    cout << "Calculating" << endl;
-
-    for (unsigned long long n = nVal.ullVal, m = mVal.ullVal; n >= 1;
-         n >>= 1, m <<= 1) {
-        // check if n is odd
-        cout << "n : " << n << " m: " << m << endl;
-        if (n % 2) {
-            sum.ullVal += m;
-            if (n == 1) {
-                return sum;
-            }
-        }
-        shitftCounts += 2;
-    }
-    return sum;
-}
+extern int shiftCounts;
 
 int main(int argc, char* argv[]) {
     // initialize a binary search tree
@@ -120,27 +67,32 @@ int main(int argc, char* argv[]) {
 
     auto countAccesses = [&accesses](TVal nodeItem) { accesses++; };
 
+    // get the largest and smallest values from the tree to seed the
+    // multiplication
     BSTnode_ptr<TVal> min = multSearchTree.getMin(countAccesses);
     BSTnode_ptr<TVal> max = multSearchTree.getMax(countAccesses);
 
-    result = russoMult(min->getItem(), max->getItem());
+    // find the initial seed result with the largest two values
+    result = Multiply(min->getItem(), max->getItem());
 
+    // remove the largest and smallest values from the tree
     multSearchTree.remove(min->getItem());
     multSearchTree.remove(max->getItem());
 
     auto mult = [&result, &accesses](TVal nodeItem) {
         accesses++;
         if (result.iVal < nodeItem.iVal) {
-            result = russoMult(result, nodeItem);
+            result = Multiply(result, nodeItem);
             return;
         }
-        result = russoMult(nodeItem, result);
+        result = Multiply(nodeItem, result);
     };
 
+    // perform in order traversal multiplying items together as it traverses the
+    // tree
     multSearchTree.inorderTraversal(multSearchTree.getRoot(), mult);
 
     // output the result and the efficiency metric(s)
-
     auto print = [](TVal i) {
         if (i.iVal > 0) {
             cout << i.iVal << " ";
@@ -154,7 +106,7 @@ int main(int argc, char* argv[]) {
          << endl;
     multSearchTree.inorderTraversal(multSearchTree.getRoot(), print);
     cout << endl;
-    cout << "Shifts performed is " << shitftCounts << " (via A La Russe)"
+    cout << "Shifts performed is " << shiftCounts << " (via A La Russe)"
          << endl;
     cout << "Accesses for operands is " << accesses << " (via AVL BST)" << endl;
 
