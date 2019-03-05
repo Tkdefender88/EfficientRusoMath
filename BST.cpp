@@ -170,10 +170,10 @@ BSTnode_ptr<ItemType> BST<ItemType>::find(BSTnode_ptr<ItemType> root,
         return root;
     }
 
-    BSTnode_ptr<ItemType> right = find(root->getRight(), item);
-    BSTnode_ptr<ItemType> left = find(root->getLeft(), item);
+    BSTnode_ptr x = (item < node->getItem()) ? find(root->getLeft(), item)
+                                             : find(root->getRight(), item);
 
-    return (right != nullptr) ? right : left;
+    return x;
 }
 
 template <class ItemType>
