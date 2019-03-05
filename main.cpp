@@ -93,18 +93,12 @@ int main(int argc, char* argv[]) {
     multSearchTree.inorderTraversal(multSearchTree.getRoot(), mult);
 
     // output the result and the efficiency metric(s)
-    auto print = [](TVal i) {
-        if (i.iVal > 0) {
-            cout << i.iVal << " ";
-            return;
-        }
-        cout << i.ullVal << " ";
-        return;
-    };
 
     cout << "Multiplication of the operands below is: " << result.ullVal
          << endl;
-    multSearchTree.inorderTraversal(multSearchTree.getRoot(), print);
+    for (int i = 1; i < argc; i++) {
+        cout << argv[i] << " ";
+    }
     cout << endl;
     cout << "Shifts performed is " << shiftCounts << " (via A La Russe)"
          << endl;
