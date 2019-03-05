@@ -78,8 +78,12 @@ class BST {
     BSTnode_ptr<ItemType> remove(BSTnode_ptr<ItemType> root,
                                  const ItemType item);
 
+    // when given a node it will search that tree for the minimum node in it
+    // (left traversal). Once found it will return the pointer to the node
     BSTnode_ptr<ItemType> getMinVal(BSTnode_ptr<ItemType> root);
 
+    // given a root and a item to search for, find will recurse through the
+    // given tree to find the item specified.
     BSTnode_ptr<ItemType> find(BSTnode_ptr<ItemType> root,
                                const ItemType item) const;
 
