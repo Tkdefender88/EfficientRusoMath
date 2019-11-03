@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
 
     // perform alarusse with the tree in the most efficient way possible
     TVal result;
-    result.iVal = 16;
+    result.iVal = 1;
 
     int accesses = 0;
 

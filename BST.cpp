@@ -5,8 +5,8 @@
  *
  * Balanced Search Tree Implementation
  *
- * Phillip J. Curtiss, Assistant Professor
- * pcurtiss@mtech.edu, 406-496-4807
+ * Justin S. Bak, SE student
+ * jbak@mtech.edu, 406-240-6477
  * Department of Computer Science, Montana Tech
  */
 
@@ -79,20 +79,18 @@ BSTnode_ptr<ItemType> BST<ItemType>::balance(BSTnode_ptr<ItemType> root,
 
 template <class ItemType>
 int BST<ItemType>::height(BSTnode_ptr<ItemType> node) {
-    if (node == NULL) {
+    if (node == nullptr) {
         return 0;
     }
     return node->getHeight();
 }
 
 template <class ItemType>
-int BST<ItemType>::max(int a, int b) {
-    return a > b ? a : b;
-}
+int BST<ItemType>::max(int a, int b) { return a > b ? a : b; }
 
 template <class ItemType>
 int BST<ItemType>::diff(BSTnode_ptr<ItemType> node) {
-    if (node == NULL) {
+    if (node == nullptr) {
         return 0;
     }
     return height(node->getLeft()) - height(node->getRight());
@@ -229,7 +227,7 @@ BSTnode_ptr<ItemType> BST<ItemType>::getMinVal(BSTnode_ptr<ItemType> root) {
 
 template <class ItemType>
 void BST<ItemType>::remove(const ItemType item) {
-    this->root = BST<ItemType>::remove(this->root, item);
+    this->root = remove(this->root, item);
 }
 
 template <class ItemType>
